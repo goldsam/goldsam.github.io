@@ -1,8 +1,16 @@
 {
   "name": "Jekyll",
-  "image": "mcr.microsoft.com/devcontainers/jekyll:2-bullseye",
   "onCreateCommand": "git config --global --add safe.directory ${containerWorkspaceFolder}",
   "postCreateCommand": "bash .devcontainer/post-create.sh",
+  "build": {
+    "dockerfile": "Dockerfile"
+  },
+  "containerEnv": {
+    "BUNDLE_PATH": "/usr/local/bundle"
+  },
+  "mounts": [
+    "source=blog-ruby-gems-cache,target=/usr/local/bundle,type=volume"
+  ],
   "customizations": {
     "vscode": {
       "settings": {

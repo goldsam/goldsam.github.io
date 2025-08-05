@@ -3,11 +3,9 @@ on:
   push:
     branches:
       - main
-      - master
     paths-ignore:
       - .gitignore
       - README.md
-      - LICENSE
 
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
@@ -39,21 +37,27 @@ jobs:
         id: pages
         uses: actions/configure-pages@v4
 
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: "temurin" # Alternatives: zulu, adopt, microsoft, etc.
+          java-version: "17"
+
       - name: Setup Ruby
         uses: ruby/setup-ruby@v1
         with:
           ruby-version: 3.3
           bundler-cache: true
 
-      - name: Install PlantUML dependencies
+      - name: Install dependencies
         run: |
           sudo apt-get update
           sudo apt-get install -y graphviz
-          curl -L -o plantuml.jar https://repo1.maven.org/maven2/net/sourceforge/plantuml/plantuml/1.2023.13/plantuml-1.2023.13.jar
-          printf '#!/bin/sh\njava -jar /usr/local/bin/plantuml.jar "$@"\n' > plantuml
-          chmod +x plantuml
-          sudo mv plantuml /usr/local/bin/plantuml
-          sudo mv plantuml.jar /usr/local/bin/plantuml.jar
+          mkdir -p /opt/plantuml
+          curl -L -o /opt/plantuml/plantuml.jar https://github.com/plantuml/plantuml/releases/latest/download/plantuml.jar
+          chmod +x /opt/plantuml/plantuml.jar
+          printf '#!/bin/sh\njava -jar /opt/plantuml/plantuml.jar "$@"\n' > /usr/local/bin/plantuml
+          chmod +x /usr/local/bin/plantuml
 
       - name: Build site
         run: bundle exec jekyll b -d "_site${{ steps.pages.outputs.base_path }}"
